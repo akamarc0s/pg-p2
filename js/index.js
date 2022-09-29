@@ -10,6 +10,7 @@ function main() {
     }
 
     const sphereBufferInfo = primitives.createSphereWithVertexColorsBufferInfo(gl, 10, 12, 6);
+    const tdBufferInfo = primitives.create3DFWithVertexColorsBufferInfo(gl, 1);
     var programInfo = webglUtils.createProgramInfo(gl, ["vertex-shader-3d", "fragment-shader-3d"]);
 
     function degToRad(d) {
@@ -23,9 +24,14 @@ function main() {
         u_colorMult: [0, 0, 0.5, 1],
         u_matrix: m4.identity(),
     };
+    var tdUniforms = {
+        u_colorMult: [0.5, 0.5, 1, 1],
+        u_matrix: m4.identity(),
+    };
 
     // Translation value to put objects in different places 
     var sphereTranslation = [0, 0, 0];
+    var tdTranslation = [50, 0, 0];
 
     function computeMatrix(viewProjectionMatrix, translation, xRotation, yRotation) {
         var matrix = m4.translate(viewProjectionMatrix,
@@ -70,6 +76,8 @@ function main() {
 
         var sphereXRotation = time;
         var sphereYRotation = time;
+        var tdXRotation = time;
+        var tdYRotation = time;
 
         gl.useProgram(programInfo.program);
 
@@ -81,11 +89,19 @@ function main() {
             sphereTranslation,
             sphereXRotation,
             sphereYRotation);
-
-        // Set the uniforms we just computed
         webglUtils.setUniforms(programInfo, sphereUniforms);
-
         gl.drawArrays(gl.TRIANGLES, 0, sphereBufferInfo.numElements);
+        
+        webglUtils.setBuffersAndAttributes(gl, programInfo, tdBufferInfo);
+        tdUniforms.u_matrix = computeMatrix(
+            viewProjectionMatrix,
+            tdTranslation,
+            tdYRotation,
+            tdXRotation);
+            
+        webglUtils.setUniforms(programInfo, tdUniforms);
+        gl.drawArrays(gl.TRIANGLES, 0, tdBufferInfo.numElements);
+
 
         requestAnimationFrame(drawScene);
     }
