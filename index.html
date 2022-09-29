@@ -1,35 +1,49 @@
-<canvas id="canvas" width="1000px" height="1000px"></canvas>
-<!-- vertex shader -->
-<script id="vertex-shader-3d" type="x-shader/x-vertex">
-attribute vec4 a_position;
-attribute vec4 a_color;
+<!DOCTYPE html>
+<html lang="en">
 
-uniform mat4 u_matrix;
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D object</title>
+  <link rel="stylesheet" href="style/style.css">
+</head>
 
-varying vec4 v_color;
+<body>
+  <canvas id="canvas"></canvas>
+  <script id="vertex-shader-3d" type="x-shader/x-vertex">
+  attribute vec4 a_position;
+  attribute vec4 a_color;
+  
+  uniform mat4 u_matrix;
+  
+  varying vec4 v_color;
+  
+  void main() {
+    // Multiply the position by the matrix.
+    gl_Position = u_matrix * a_position;
+  
+    // Pass the color to the fragment shader.
+    v_color = a_color;
+  }
+  </script>
+  <!-- fragment shader -->
+  <script id="fragment-shader-3d" type="x-shader/x-fragment">
+  precision mediump float;
+  
+  // Passed in from the vertex shader.
+  varying vec4 v_color;
+  
+  uniform vec4 u_colorMult;
+  
+  void main() {
+     gl_FragColor = v_color * u_colorMult;
+  }
+  </script>
+  <script src="webgl-utils.js"></script>
+  <script src="m4.js"></script>
+  <script src="primitives.js"></script>
+  <script src="index.js"></script>
+</body>
 
-void main() {
-  // Multiply the position by the matrix.
-  gl_Position = u_matrix * a_position;
-
-  // Pass the color to the fragment shader.
-  v_color = a_color;
-}
-</script>
-<!-- fragment shader -->
-<script id="fragment-shader-3d" type="x-shader/x-fragment">
-precision mediump float;
-
-// Passed in from the vertex shader.
-varying vec4 v_color;
-
-uniform vec4 u_colorMult;
-
-void main() {
-   gl_FragColor = v_color * u_colorMult;
-}
-</script>
-<script src="js/webgl-utils.js"></script>
-<script src="js/m4.js"></script>
-<script src="js/primitives.js"></script>
-<script src="js/index.js"></script>
+</html>
