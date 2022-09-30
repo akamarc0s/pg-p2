@@ -13,6 +13,7 @@ function main() {
     const sphereBufferInfo = primitives.createSphereWithVertexColorsBufferInfo(gl, 10, 12, 6);
     const fBufferInfo = primitives.create3DFWithVertexColorsBufferInfo(gl, 1);
     const coneBufferInfo   = primitives.createTruncatedConeWithVertexColorsBufferInfo(gl, 10, 0, 20, 12, 1, true, false);
+    const cubeBufferInfo = primitives.createCubeWithVertexColorsBufferInfo(gl, 10, 10, 10);
 
     var programInfo = webglUtils.createProgramInfo(gl, ["vertex-shader-3d", "fragment-shader-3d"]);
 
@@ -42,9 +43,10 @@ function main() {
     };
 
     //Posicionado os objetos na cena
-    var sphereTranslation = [0, 0, 0];
-    var fTranslation = [50, 0, 0];
-    var coneTranslation = [-50, 20, 30]
+    var sphereTranslation = [-15, -20, 20];
+    var fTranslation = [30, -10, 0];
+    var coneTranslation = [-35, 10, 50];
+    var cubeTranslation = [5, 10, 10];
 
     function computeMatrix(viewProjectionMatrix, translation, xRotation, yRotation) {
         var matrix = m4.translate(viewProjectionMatrix,
@@ -60,7 +62,7 @@ function main() {
 
     //Criando a cena
     function drawScene(speed) {
-        speed *= 0.0005;
+        speed *= 0.0007;
 
         webglUtils.resizeCanvasToDisplaySize(gl.canvas);
 
@@ -95,6 +97,8 @@ function main() {
         var fYRotation = speed;
         var coneXRotation = speed;
         var coneYRotation = speed;
+        var cubeXRotation = speed;
+        var cubeYRotation = speed;
 
         gl.useProgram(programInfo.program);
 
@@ -131,6 +135,17 @@ function main() {
             
         webglUtils.setUniforms(programInfo, coneUniforms);
         gl.drawArrays(gl.TRIANGLES, 0, coneBufferInfo.numElements);
+
+        //Cubo
+        webglUtils.setBuffersAndAttributes(gl, programInfo, cubeBufferInfo);
+        coneUniforms.u_matrix = computeMatrix(
+            viewProjectionMatrix,
+            cubeTranslation,
+            cubeYRotation,
+            cubeXRotation);
+            
+        webglUtils.setUniforms(programInfo, coneUniforms);
+        gl.drawArrays(gl.TRIANGLES, 0, cubeBufferInfo.numElements);
 
 
         requestAnimationFrame(drawScene);
