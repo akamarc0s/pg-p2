@@ -1,7 +1,7 @@
 # Integrantes do Grupo
 - Marcos Antonio de Santana Júnior
 - Guilherme Milani de Oliveira
-- Andre Luis de Oliveira
+- Andre Luis de Oliveira  RA: 770985
 - Jean Wylmer Mendoza
 
 # Especificações
