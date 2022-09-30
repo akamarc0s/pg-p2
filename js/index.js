@@ -9,8 +9,11 @@ function main() {
         return;
     }
 
+    //Criando os buffers dos objetos
     const sphereBufferInfo = primitives.createSphereWithVertexColorsBufferInfo(gl, 10, 12, 6);
-    const tdBufferInfo = primitives.create3DFWithVertexColorsBufferInfo(gl, 1);
+    const fBufferInfo = primitives.create3DFWithVertexColorsBufferInfo(gl, 1);
+    const coneBufferInfo   = primitives.createTruncatedConeWithVertexColorsBufferInfo(gl, 10, 0, 20, 12, 1, true, false);
+
     var programInfo = webglUtils.createProgramInfo(gl, ["vertex-shader-3d", "fragment-shader-3d"]);
 
     function degToRad(d) {
@@ -19,69 +22,84 @@ function main() {
 
     var fieldOfViewRadians = degToRad(60);
 
-    // Properties for each object
+    //Propriedade dos objetos
+    //Esfera
     var sphereUniforms = {
         u_colorMult: [0, 0, 0.5, 1],
         u_matrix: m4.identity(),
     };
-    var tdUniforms = {
+
+    //Letra F
+    var fUniforms = {
         u_colorMult: [0.5, 0.5, 1, 1],
         u_matrix: m4.identity(),
     };
 
-    // Translation value to put objects in different places 
+    //Cone
+    var coneUniforms = {
+        u_colorMult: [1, 1, 1, 1],
+        u_matrix: m4.identity(),
+    };
+
+    //Posicionado os objetos na cena
     var sphereTranslation = [0, 0, 0];
-    var tdTranslation = [50, 0, 0];
+    var fTranslation = [50, 0, 0];
+    var coneTranslation = [-50, 20, 30]
 
     function computeMatrix(viewProjectionMatrix, translation, xRotation, yRotation) {
         var matrix = m4.translate(viewProjectionMatrix,
             translation[0],
             translation[1],
-            translation[2]);
+            translation[2],
+            translation[3]);
         matrix = m4.xRotate(matrix, xRotation);
         return m4.yRotate(matrix, yRotation);
     }
 
     requestAnimationFrame(drawScene);
-    // Create scene
-    function drawScene(time) {
-        time *= 0.0005;
+
+    //Criando a cena
+    function drawScene(speed) {
+        speed *= 0.0005;
 
         webglUtils.resizeCanvasToDisplaySize(gl.canvas);
 
-        // Tell WebGL how to convert from clip space to pixels
+        //Fala pro WebGl como converter de clip space para pixels 
         gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
 
         gl.enable(gl.CULL_FACE);
         gl.enable(gl.DEPTH_TEST);
 
-        // Clear the canvas AND the depth buffer.
+        //Limpa o canva e o depth buffer 
         gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-        // Compute the projection matrix
+        //Computa a matrix de projeção 
         var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
         var projectionMatrix =
             m4.perspective(fieldOfViewRadians, aspect, 1, 2000);
 
-        // Compute the camera's matrix using look at.
+        //Criando e posicionando a câmera
         var cameraPosition = [0, 0, 110];
         var target = [0, 0, 0];
         var up = [0, 1, 0];
         var cameraMatrix = m4.lookAt(cameraPosition, target, up);
 
-        // Make a view matrix from the camera matrix.
         var viewMatrix = m4.inverse(cameraMatrix);
 
         var viewProjectionMatrix = m4.multiply(projectionMatrix, viewMatrix);
 
-        var sphereXRotation = time;
-        var sphereYRotation = time;
-        var tdXRotation = time;
-        var tdYRotation = time;
+        //Velocidade dos eixos dos objetos
+        var sphereXRotation = speed;
+        var sphereYRotation = speed;
+        var fXRotation = speed;
+        var fYRotation = speed;
+        var coneXRotation = speed;
+        var coneYRotation = speed;
 
         gl.useProgram(programInfo.program);
 
-        // Setup all the needed attributes.
+        //Setando todos os atributos necessarios dos objetos
+        //Esfera
         webglUtils.setBuffersAndAttributes(gl, programInfo, sphereBufferInfo);
 
         sphereUniforms.u_matrix = computeMatrix(
@@ -91,16 +109,28 @@ function main() {
             sphereYRotation);
         webglUtils.setUniforms(programInfo, sphereUniforms);
         gl.drawArrays(gl.TRIANGLES, 0, sphereBufferInfo.numElements);
-        
-        webglUtils.setBuffersAndAttributes(gl, programInfo, tdBufferInfo);
-        tdUniforms.u_matrix = computeMatrix(
+
+        //Letra F
+        webglUtils.setBuffersAndAttributes(gl, programInfo, fBufferInfo);
+        fUniforms.u_matrix = computeMatrix(
             viewProjectionMatrix,
-            tdTranslation,
-            tdYRotation,
-            tdXRotation);
+            fTranslation,
+            fYRotation,
+            fXRotation);
             
-        webglUtils.setUniforms(programInfo, tdUniforms);
-        gl.drawArrays(gl.TRIANGLES, 0, tdBufferInfo.numElements);
+        webglUtils.setUniforms(programInfo, fUniforms);
+        gl.drawArrays(gl.TRIANGLES, 0, fBufferInfo.numElements);
+
+        //Cone
+        webglUtils.setBuffersAndAttributes(gl, programInfo, coneBufferInfo);
+        coneUniforms.u_matrix = computeMatrix(
+            viewProjectionMatrix,
+            coneTranslation,
+            coneYRotation,
+            coneXRotation);
+            
+        webglUtils.setUniforms(programInfo, coneUniforms);
+        gl.drawArrays(gl.TRIANGLES, 0, coneBufferInfo.numElements);
 
 
         requestAnimationFrame(drawScene);
